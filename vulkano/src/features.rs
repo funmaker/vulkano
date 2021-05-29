@@ -280,6 +280,10 @@ pub struct Features {
 
     pub shader_float16: bool,
     pub shader_int8: bool,
+    
+    pub multiview: bool,
+    pub multiview_geometry_shader: bool,
+    pub multiview_tessellation_shader: bool,
 }
 
 pub(crate) struct FeaturesFfi {
@@ -291,6 +295,7 @@ pub(crate) struct FeaturesFfi {
     i8_storage: vk::PhysicalDevice8BitStorageFeatures,
     i16_storage: vk::PhysicalDevice16BitStorageFeatures,
     f16_i8: vk::PhysicalDeviceShaderFloat16Int8Features,
+    multiview: vk::PhysicalDeviceMultiviewFeatures,
 }
 
 macro_rules! features {
@@ -562,6 +567,16 @@ features! {
       fields: [
         shader_float16 => shaderFloat16,
         shader_int8 => shaderInt8,
+      ],
+    },
+    extension {
+      ty: vk::PhysicalDeviceMultiviewFeatures,
+      ffi_name: multiview,
+      sType: vk::STRUCTURE_TYPE_PHYSICAL_DEVICE_MULTIVIEW_FEATURES,
+      fields: [
+        multiview => multiview,
+        multiview_geometry_shader => multiviewGeometryShader,
+        multiview_tessellation_shader => multiviewTessellationShader,
       ],
     },
 }

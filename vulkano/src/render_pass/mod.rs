@@ -43,6 +43,7 @@ pub use self::render_pass::RenderPass;
 pub use self::render_pass::RenderPassCreationError;
 pub use self::render_pass::RenderPassSys;
 pub use self::render_pass::Subpass;
+pub use self::multiview_desc::MultiviewDesc;
 
 #[macro_use]
 mod macros;
@@ -51,3 +52,4 @@ mod compat_atch;
 mod desc;
 mod framebuffer;
 mod render_pass;
+mod multiview_desc;

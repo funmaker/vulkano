@@ -2849,6 +2849,18 @@ pub struct RenderPassCreateInfo {
 }
 
 #[repr(C)]
+pub struct RenderPassMultiviewCreateInfo  {
+    pub sType: StructureType,
+    pub pNext: *const c_void,
+    pub subpassCount: u32,
+    pub pViewMasks: *const u32,
+    pub dependencyCount: u32,
+    pub pViewOffsets: *const i32,
+    pub correlationMaskCount: u32,
+    pub pCorrelationMasks: *const u32,
+}
+
+#[repr(C)]
 pub struct CommandPoolCreateInfo {
     pub sType: StructureType,
     pub pNext: *const c_void,
@@ -3294,6 +3306,14 @@ pub struct PhysicalDeviceSubgroupProperties {
 }
 
 #[repr(C)]
+pub struct PhysicalDeviceMultiviewProperties {
+    pub sType: StructureType,
+    pub pNext: *const c_void,
+    pub maxMultiviewViewCount: u32,
+    pub maxMultiviewInstanceIndex: u32,
+}
+
+#[repr(C)]
 pub struct FormatProperties2KHR {
     pub sType: StructureType,
     pub pNext: *const c_void,
@@ -3400,6 +3420,15 @@ pub struct PhysicalDeviceShaderFloat16Int8Features {
     pub pNext: *const c_void,
     pub shaderFloat16: Bool32,
     pub shaderInt8: Bool32,
+}
+
+#[repr(C)]
+pub struct PhysicalDeviceMultiviewFeatures {
+    pub sType: StructureType,
+    pub pNext: *const c_void,
+    pub multiview: Bool32,
+    pub multiviewGeometryShader: Bool32,
+    pub multiviewTessellationShader: Bool32,
 }
 
 pub type ViSurfaceCreateFlagsNN = Flags;

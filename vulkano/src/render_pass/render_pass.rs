@@ -17,6 +17,7 @@ use crate::render_pass::AttachmentDesc;
 use crate::render_pass::LoadOp;
 use crate::render_pass::RenderPassDesc;
 use crate::render_pass::SubpassDesc;
+use crate::render_pass::MultiviewDesc;
 use crate::vk;
 use crate::Error;
 use crate::OomError;
@@ -108,6 +109,7 @@ impl RenderPass {
     pub fn new(
         device: Arc<Device>,
         description: RenderPassDesc,
+        multiview: Option<MultiviewDesc>
     ) -> Result<RenderPass, RenderPassCreationError> {
         let vk = device.pointers();
 
@@ -379,10 +381,48 @@ impl RenderPass {
             })
             .collect::<SmallVec<[_; 16]>>();
 
+        let multiview = multiview.map(|mv_desc| {
+            debug_assert!(
+                mv_desc.view_masks().len() == 0
+                    || mv_desc.view_masks().len() == passes.len()
+            );
+            
+            debug_assert!(
+                mv_desc.view_masks().iter().all(|&vm| vm == 0)
+                    || mv_desc.view_masks().iter().all(|&vm| vm != 0)
+            );
+            
+            debug_assert!(
+                mv_desc.view_offsets().len() == 0
+                    || mv_desc.view_offsets().len() == dependencies.len()
+            );
+            // TODO: more depedency related checks?
+            
+            // Correlation masks must not overlap
+            debug_assert!(
+                mv_desc.correlation_masks().iter().enumerate().all(|(n1, &cm1)|
+                    mv_desc.correlation_masks().iter().enumerate().all(|(n2, &cm2)|
+                        n1 == n2 || cm1 & cm2 == 0
+                    )
+                )
+            );
+    
+            vk::RenderPassMultiviewCreateInfo {
+                sType: vk::STRUCTURE_TYPE_RENDER_PASS_MULTIVIEW_CREATE_INFO,
+                pNext: ptr::null(),
+                subpassCount: mv_desc.view_masks().len() as u32,
+                pViewMasks: mv_desc.view_masks().as_ptr(),
+                dependencyCount: mv_desc.view_offsets().len() as u32,
+                pViewOffsets: mv_desc.view_offsets().as_ptr(),
+                correlationMaskCount: mv_desc.correlation_masks().len() as u32,
+                pCorrelationMasks: mv_desc.correlation_masks().as_ptr()
+            }
+        });
+
         let render_pass = unsafe {
             let infos = vk::RenderPassCreateInfo {
                 sType: vk::STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-                pNext: ptr::null(),
+                pNext: multiview.as_ref().map(|mv| mv as *const _ as *const _).unwrap_or(ptr::null()),
                 flags: 0, // reserved
                 attachmentCount: attachments.len() as u32,
                 pAttachments: if attachments.is_empty() {
@@ -427,7 +467,7 @@ impl RenderPass {
     /// This method is useful for quick tests.
     #[inline]
     pub fn empty_single_pass(device: Arc<Device>) -> Result<RenderPass, RenderPassCreationError> {
-        RenderPass::new(device, RenderPassDesc::empty())
+        RenderPass::new(device, RenderPassDesc::empty(), None)
     }
 
     #[inline]

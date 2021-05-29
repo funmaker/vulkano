@@ -101,7 +101,7 @@ impl AttachmentImage {
     #[inline]
     pub fn new(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         format: Format,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
         AttachmentImage::new_impl(device, dimensions, format, ImageUsage::none(), 1)
@@ -113,7 +113,7 @@ impl AttachmentImage {
     #[inline]
     pub fn input_attachment(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         format: Format,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
         let base_usage = ImageUsage {
@@ -131,7 +131,7 @@ impl AttachmentImage {
     #[inline]
     pub fn multisampled(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         samples: u32,
         format: Format,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
@@ -144,7 +144,7 @@ impl AttachmentImage {
     #[inline]
     pub fn multisampled_input_attachment(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         samples: u32,
         format: Format,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
@@ -164,7 +164,7 @@ impl AttachmentImage {
     #[inline]
     pub fn with_usage(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         format: Format,
         usage: ImageUsage,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
@@ -180,7 +180,7 @@ impl AttachmentImage {
     #[inline]
     pub fn multisampled_with_usage(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         samples: u32,
         format: Format,
         usage: ImageUsage,
@@ -194,7 +194,7 @@ impl AttachmentImage {
     #[inline]
     pub fn sampled(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         format: Format,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
         let base_usage = ImageUsage {
@@ -211,7 +211,7 @@ impl AttachmentImage {
     #[inline]
     pub fn sampled_input_attachment(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         format: Format,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
         let base_usage = ImageUsage {
@@ -232,7 +232,7 @@ impl AttachmentImage {
     #[inline]
     pub fn sampled_multisampled(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         samples: u32,
         format: Format,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
@@ -251,7 +251,7 @@ impl AttachmentImage {
     #[inline]
     pub fn sampled_multisampled_input_attachment(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         samples: u32,
         format: Format,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
@@ -273,7 +273,7 @@ impl AttachmentImage {
     #[inline]
     pub fn transient(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         format: Format,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
         let base_usage = ImageUsage {
@@ -290,7 +290,7 @@ impl AttachmentImage {
     #[inline]
     pub fn transient_input_attachment(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         format: Format,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
         let base_usage = ImageUsage {
@@ -311,7 +311,7 @@ impl AttachmentImage {
     #[inline]
     pub fn transient_multisampled(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         samples: u32,
         format: Format,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
@@ -330,7 +330,7 @@ impl AttachmentImage {
     #[inline]
     pub fn transient_multisampled_input_attachment(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         samples: u32,
         format: Format,
     ) -> Result<Arc<AttachmentImage>, ImageCreationError> {
@@ -346,7 +346,7 @@ impl AttachmentImage {
     // All constructors dispatch to this one.
     fn new_impl(
         device: Arc<Device>,
-        dimensions: [u32; 2],
+        dimensions: ImageDimensions,
         format: Format,
         base_usage: ImageUsage,
         samples: u32,
@@ -368,18 +368,12 @@ impl AttachmentImage {
         };
 
         let (image, mem_reqs) = unsafe {
-            let dims = ImageDimensions::Dim2d {
-                width: dimensions[0],
-                height: dimensions[1],
-                array_layers: 1,
-            };
-
             UnsafeImage::new(
                 device.clone(),
                 usage,
                 format,
                 ImageCreateFlags::none(),
-                dims,
+                dimensions,
                 samples,
                 1,
                 Sharing::Exclusive::<Empty<u32>>,
@@ -425,9 +419,8 @@ impl AttachmentImage {
 impl<A> AttachmentImage<A> {
     /// Returns the dimensions of the image.
     #[inline]
-    pub fn dimensions(&self) -> [u32; 2] {
-        let dims = self.image.dimensions();
-        [dims.width(), dims.height()]
+    pub fn dimensions(&self) -> ImageDimensions {
+        self.image.dimensions()
     }
 }
 
@@ -548,7 +541,7 @@ unsafe impl<A> ImageAccess for AttachmentImage<A> {
 
     #[inline]
     fn current_layer_levels_access(&self) -> std::ops::Range<u32> {
-        0..1
+        0..self.dimensions().array_layers()
     }
 }
 

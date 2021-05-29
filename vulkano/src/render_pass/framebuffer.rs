@@ -221,7 +221,7 @@ where
                     });
                 }
 
-                FramebufferBuilderDimensions::Specific(view_dimensions)
+                FramebufferBuilderDimensions::Specific(current)
             }
         };
 
