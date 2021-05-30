@@ -381,7 +381,7 @@ impl RenderPass {
             })
             .collect::<SmallVec<[_; 16]>>();
 
-        let multiview = multiview.map(|mv_desc| {
+        let multiview_desc = multiview.as_ref().map(|mv_desc| {
             debug_assert!(
                 mv_desc.view_masks().len() == 0
                     || mv_desc.view_masks().len() == passes.len()
@@ -422,7 +422,7 @@ impl RenderPass {
         let render_pass = unsafe {
             let infos = vk::RenderPassCreateInfo {
                 sType: vk::STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO,
-                pNext: multiview.as_ref().map(|mv| mv as *const _ as *const _).unwrap_or(ptr::null()),
+                pNext: multiview_desc.as_ref().map(|mv| mv as *const _ as *const _).unwrap_or(ptr::null()),
                 flags: 0, // reserved
                 attachmentCount: attachments.len() as u32,
                 pAttachments: if attachments.is_empty() {
