@@ -231,7 +231,7 @@ pub struct GraphicsEntryPoint<'a> {
     module: &'a ShaderModule,
     name: &'a CStr,
 
-    descriptor_set_layout_descs: SmallVec<[DescriptorSetDesc; 16]>,
+    descriptor_set_layout_descs: SmallVec<[DescriptorSetDesc; 4]>,
     push_constant_range: Option<PipelineLayoutPcRange>,
     spec_constants: &'static [SpecializationMapEntry],
     input: ShaderInterface,

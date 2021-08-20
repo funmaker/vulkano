@@ -54,7 +54,7 @@ use std::fmt;
 
 #[derive(Clone, Debug, Default)]
 pub struct DescriptorSetDesc {
-    descriptors: SmallVec<[Option<DescriptorDesc>; 32]>,
+    descriptors: SmallVec<[Option<DescriptorDesc>; 6]>,
 }
 
 impl DescriptorSetDesc {
