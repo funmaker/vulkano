@@ -112,7 +112,7 @@ pub struct SyncCommandBuffer {
 
 impl SyncCommandBuffer {
     #[inline]
-    pub(super) fn resources_usage(&self) -> &CommandBufferResourcesUsage {
+    pub fn resources_usage(&self) -> &CommandBufferResourcesUsage {
         &self.resources_usage
     }
 
